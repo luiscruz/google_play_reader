@@ -1,12 +1,13 @@
 """Models of this library."""
 
+import os
+import csv
 from lxml import html
 import requests
-import csv
-import os
 
 class AppEntry(object):
-    
+    """Class for a single app information requester."""
+
     _page = None
     _tree = None
     def __init__(self, package):
@@ -22,31 +23,32 @@ class AppEntry(object):
 
     def get_rating(self):
         "Get rating value and count of ratings."
-        page, tree = self._get_page_and_tree()
+        _, tree = self._get_page_and_tree()
         rating = tree.xpath('//div[@itemprop="aggregateRating"]')[0]
         value = rating.xpath('//meta[@itemprop="ratingValue"]')[0].attrib["content"]
         count = rating.xpath('//meta[@itemprop="ratingCount"]')[0].attrib["content"]
         return float(value), int(count)
-    
+
     def get_downloads(self):
         "Get range number of downloads."
-        page, tree = self._get_page_and_tree()
+        _, tree = self._get_page_and_tree()
         downloads = tree.xpath('//div[@itemprop="numDownloads"]')[0].text
         return downloads.strip()
-    
+
     def get_category(self):
         "Get category of the app."
-        page, tree = self._get_page_and_tree()
+        _, tree = self._get_page_and_tree()
         downloads = tree.xpath('//span[@itemprop="genre"]')[0].text
         return downloads.strip()
-    
+
     def get_name(self):
         "Get name of the app."
-        page, tree = self._get_page_and_tree()
+        _, tree = self._get_page_and_tree()
         name = tree.xpath('//div[@class="id-app-title"]')[0].text
         return name.strip()
 
 class AppDatabase():
+    """Class to maintain a CSV database with several apps' information."""
 
     _CSV_HEADER = [
         "package",
@@ -62,12 +64,14 @@ class AppDatabase():
                 csv_writer.writeheader()
 
     def already_processed(self, package):
+        """Check whether an app was already collected."""
         with open(self.csv_filename, 'r') as csv_file:
             csv_reader = csv.DictReader(csv_file)
             return package in (row['package'] for row in csv_reader)
         return False
 
     def process(self, package):
+        """Collect and save information about a single app."""
         if self.already_processed(package):
             print("Skipping {}: already processed.".format(package))
             return
@@ -75,9 +79,8 @@ class AppDatabase():
             app = AppEntry(package)
             rating_value, rating_count = app.get_rating()
             downloads = app.get_downloads()
-        except Exception as e:
-            print(e)
-            print("Warning: could not get info for {}".format(package))
+        except IndexError:
+            print("Warning: could not find {} on Google Play".format(package))
             rating_value = rating_count = downloads = None
         with open(self.csv_filename, 'a') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=self._CSV_HEADER)
@@ -87,23 +90,21 @@ class AppDatabase():
                 "rating_count": rating_count,
                 "downloads": downloads,
             })
-        
+
 
     def bulk_process(self, packages):
-        """Process list of packages"""
+        """Process list of packages."""
         for package in packages:
             print("Collecting info for {}.".format(package))
             self.process(package)
 
-            
-             
+
+
 
 if __name__ == "__main__":
-    app = AppEntry("com.newsblur")
-    print(app._get_page_and_tree())
-    print(app.get_name())
-    bulk = AppDatabase("test.csv")
-    print(bulk.already_processed("com.showmehills"))
-    bulk.bulk_process(["com.newsblur","eu.siacs.conversations","com.showmehills"])
-    
-    
+    #pylint: disable=invalid-name
+    app_entry = AppEntry("com.newsblur")
+    print(app_entry.get_name())
+    collector = AppDatabase("test.csv")
+    print(collector.already_processed("com.showmehills"))
+    collector.bulk_process(["com.newsblur", "eu.siacs.conversations", "com.showmehills"])
