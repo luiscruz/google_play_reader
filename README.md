@@ -30,7 +30,7 @@ $tox -e py36
 ### Tests
 
 Tests are still not being made properly.
-So far you can see if it is working properly by running:
+So far you can check whether it is working by running:
 
 ```
 $python -m google_play_reader.models
