@@ -1,5 +1,7 @@
 # google_play_reader
 
+[![Build Status](https://travis-ci.org/luiscruz/google_play_reader.svg?branch=master)](https://travis-ci.org/luiscruz/google_play_reader)
+
 Python3 library to get information about apps on Google Play Store.
 
 ## Install
