@@ -13,6 +13,8 @@ $pip install git+https://github.com/luiscruz/google_play_reader.git
 ## Usage
 
 ```
+from google_play_reader.models import AppEntry
+
 app_entry = AppEntry("com.newsblur")
 name = app_entry.get_name()
 rating_value, rating_count = app_entry.get_rating()
