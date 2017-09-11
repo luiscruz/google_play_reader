@@ -7,7 +7,7 @@ Python3 library to get information about apps on Google Play Store.
 ## Install
 
 ```
-$pip install git+https://github.com/luiscruz/google_play_reader.git
+$pip install google_play_reader
 ```
 
 ## Usage
