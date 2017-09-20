@@ -1,7 +1,7 @@
 google\_play\_reader
 ====================
 
-|Build Status|
+|Build Status| |Landscape|
 
 Python3 library to get information about apps on Google Play Store.
 
@@ -48,3 +48,6 @@ is working by running:
 
 .. |Build Status| image:: https://travis-ci.org/luiscruz/google_play_reader.svg?branch=master
    :target: https://travis-ci.org/luiscruz/google_play_reader
+.. |Landscape| image:: https://landscape.io/github/luiscruz/google_play_reader/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/luiscruz/google_play_reader/master
+   :alt: Code Health
