@@ -2,6 +2,7 @@
 
 import os
 import csv
+import logging
 from lxml import html
 import requests
 
@@ -26,25 +27,29 @@ class AppEntry(object):
         _, tree = self._get_page_and_tree()
         rating = tree.xpath('//div[@itemprop="aggregateRating"]')[0]
         value = rating.xpath('//meta[@itemprop="ratingValue"]')[0].attrib["content"]
-        count = rating.xpath('//meta[@itemprop="ratingCount"]')[0].attrib["content"]
+        count = rating.xpath('//meta[@itemprop="reviewCount"]')[0].attrib["content"]
         return float(value), int(count)
 
     def get_downloads(self):
         "Get range number of downloads."
-        _, tree = self._get_page_and_tree()
-        downloads = tree.xpath('//div[@itemprop="numDownloads"]')[0].text
-        return downloads.strip()
+        try:
+            _, tree = self._get_page_and_tree()
+            downloads = tree.xpath('//div[@itemprop="numDownloads"]')[0].attrib["content"]
+            return downloads.strip()
+        except IndexError:
+            logging.error('Downloads are no longer supported.')
+            return None
 
     def get_category(self):
         "Get category of the app."
         _, tree = self._get_page_and_tree()
-        downloads = tree.xpath('//span[@itemprop="genre"]')[0].text
-        return downloads.strip()
+        category = tree.xpath('//meta[@itemprop="applicationCategory"]')[0].attrib["content"]
+        return category.strip()
 
     def get_name(self):
         "Get name of the app."
         _, tree = self._get_page_and_tree()
-        name = tree.xpath('//div[@class="id-app-title"]')[0].text
+        name = tree.xpath('//meta[@itemprop="name"]')[0].attrib["content"]
         return name.strip()
 
 class AppDatabase():
@@ -104,7 +109,10 @@ class AppDatabase():
 if __name__ == "__main__":
     #pylint: disable=invalid-name
     app_entry = AppEntry("com.newsblur")
+    print(app_entry.get_category())
     print(app_entry.get_name())
+    print(app_entry.get_rating())
+    print(app_entry.get_downloads())
     collector = AppDatabase("test.csv")
     print(collector.already_processed("com.showmehills"))
     collector.bulk_process(["com.newsblur", "eu.siacs.conversations", "com.showmehills"])
